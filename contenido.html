@@ -1,1005 +1,1131 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dominio Profesional de Google Sheets | Básico a Avanzado</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+    <meta name="description" content="Temario detallado: Sheets Pro Level — QUERY() Avanzado, Google Apps Script e IA aplicada en Google Sheets.">
+    <title>Contenido Temático | Sheets Pro Level</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg:     #080c10;
+            --bg2:    #0d1117;
+            --bg3:    #131a23;
+            --border: #1e2d3d;
+            --green:  #00e676;
+            --cyan:   #00bcd4;
+            --amber:  #ffab00;
+            --red:    #ff5252;
+            --text:   #c9d8e8;
+            --muted:  #5c7a96;
+            --white:  #eaf3fc;
         }
 
-        :root {
-            --primary: #0f766e;
-            --primary-light: #14b8a6;
-            --primary-dark: #115e59;
-            --accent: #f59e0b;
-            --accent-light: #fbbf24;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --border: #e2e8f0;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2f1 100%);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            position: relative;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
             overflow-x: hidden;
         }
 
+        /* ─── SCANLINE OVERLAY ─── */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(15, 118, 110, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 2px,
+                rgba(0,230,118,.015) 2px,
+                rgba(0,230,118,.015) 4px
+            );
             pointer-events: none;
-            z-index: 0;
+            z-index: 9999;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header {
-            background: var(--bg-card);
-            border-radius: 1.5rem;
-            padding: 3rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-lg);
-            text-align: center;
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
-        }
-
-        .header-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 2rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            line-height: 1.2;
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        .subtitle {
-            font-size: 1.5rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 2rem;
-            animation: fadeInUp 0.8s ease-out 0.2s backwards;
-        }
-
-        .tagline {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            max-width: 800px;
-            margin: 0 auto 2.5rem;
-            line-height: 1.8;
-            font-style: italic;
-            animation: fadeInUp 0.8s ease-out 0.4s backwards;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .info-card {
+        /* ─── NAVBAR ─── */
+        .navbar {
+            background: rgba(8,12,16,.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: var(--bg-main);
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.8s ease-out calc(0.6s + var(--delay)) backwards;
-        }
-
-        .info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
-        }
-
-        .info-icon {
-            flex-shrink: 0;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.75rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-        }
-
-        .info-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .sessions {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .session-card {
-            background: var(--bg-card);
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.6s ease-out calc(var(--delay)) backwards;
-        }
-
-        .session-card:hover {
-            box-shadow: var(--shadow-xl);
-            transform: translateY(-4px);
-        }
-
-        .session-header {
-            padding: 2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: space-between;
-            transition: background 0.3s ease;
-            position: relative;
-        }
-
-        .session-header::before {
-            content: '';
-            position: absolute;
-            left: 0;
+            align-items: center;
+            position: sticky;
             top: 0;
-            width: 5px;
-            height: 100%;
-            background: var(--session-color);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            z-index: 1000;
         }
 
-        .session-header:hover::before {
-            opacity: 1;
-        }
-
-        .session-header:hover {
-            background: var(--bg-main);
-        }
-
-        .session-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .session-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--session-color);
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .session-icon::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 1rem;
-            background: var(--session-color);
-            opacity: 0.2;
-            filter: blur(8px);
-        }
-
-        .session-info h3 {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-        }
-
-        .session-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.75rem;
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--green);
+            letter-spacing: -.02em;
         }
+        .logo span { color: var(--muted); }
 
-        .chevron {
-            transition: transform 0.3s ease;
-            color: var(--text-muted);
-        }
-
-        .chevron.rotated {
-            transform: rotate(90deg);
-        }
-
-        .session-content {
-            padding: 0 2rem 2rem 2rem;
-            display: none;
-            animation: slideDown 0.4s ease-out;
-        }
-
-        .session-content.active {
-            display: block;
-        }
-
-        .section {
-            margin-bottom: 2rem;
-            padding-left: 2rem;
-            border-left: 3px solid var(--border);
-            position: relative;
-        }
-
-        .section::before {
-            content: '';
-            position: absolute;
-            left: -2rem;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: var(--session-color);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .section:hover::before {
-            opacity: 1;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .9rem;
+            transition: color .2s;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 6px;
         }
+        .nav-links a:hover { color: var(--green); }
+        .nav-links a.wa { color: #25D366; }
 
-        .section-title::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--session-color);
-        }
-
-        .items-grid {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .item {
-            padding: 1.25rem;
-            background: var(--bg-main);
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            cursor: pointer;
+        /* ─── HERO HEADER ─── */
+        .page-header {
             position: relative;
+            padding: 70px 24px 60px;
+            text-align: center;
             overflow: hidden;
-        }
-
-        .item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: var(--session-color);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-        }
-
-        .item:hover {
-            background: white;
-            border-color: var(--session-color);
-            transform: translateX(4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .item:hover::before {
-            transform: scaleY(1);
-        }
-
-        .item-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-            font-size: 1rem;
-        }
-
-        .item-desc {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin: 1.5rem 0;
-            border-radius: 1rem;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 1rem;
-            text-align: left;
             border-bottom: 1px solid var(--border);
         }
 
-        .comparison-table th {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: .35;
         }
 
-        .comparison-table td {
-            background: var(--bg-card);
-            font-size: 0.9rem;
-        }
-
-        .comparison-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .comparison-table tr:hover td {
-            background: var(--bg-main);
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 420px;
+            background: radial-gradient(ellipse at center, rgba(0,230,118,.10) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .badge {
             display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .75rem;
+            color: var(--green);
+            border: 1px solid var(--green);
+            border-radius: 3px;
+            padding: 4px 12px;
+            margin-bottom: 24px;
+            letter-spacing: .12em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-obsolete {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-specific {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-professional {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .cta-section {
-            margin-top: 3rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            border-radius: 1.5rem;
-            padding: 3rem 2rem;
-            text-align: center;
-            box-shadow: var(--shadow-xl);
             position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.8s ease-out 1s backwards;
         }
 
-        .cta-section::before {
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.15;
+            max-width: 760px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .page-header h1 .accent-green { color: var(--green); }
+        .page-header h1 .accent-cyan  { color: var(--cyan); }
+        .page-header h1 .accent-amber { color: var(--amber); }
+
+        .page-tagline {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 620px;
+            margin: 0 auto 36px;
+            font-style: italic;
+            position: relative;
+        }
+
+        /* ─── INFO PILLS ─── */
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: .87rem;
+            color: var(--text);
+            font-weight: 600;
+            transition: border-color .3s, box-shadow .3s;
+        }
+        .pill:hover {
+            border-color: var(--green);
+            box-shadow: 0 0 14px rgba(0,230,118,.14);
+        }
+        .pill .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        .dot-cyan  { background: var(--cyan);  box-shadow: 0 0 6px var(--cyan); }
+        .dot-amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+
+        /* ─── MAIN CONTAINER ─── */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        /* ─── SECTION TAG ─── */
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .7rem;
+            color: var(--green);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            margin-bottom: 8px;
+        }
+
+        .section-heading {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 10px;
+        }
+
+        .section-sub {
+            color: var(--muted);
+            font-size: .95rem;
+            margin-bottom: 40px;
+        }
+
+        /* ─── SESSION CARDS (accordion) ─── */
+        .sessions { display: flex; flex-direction: column; gap: 16px; }
+
+        .session-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color .3s, transform .3s, box-shadow .3s;
+        }
+
+        .session-card:hover {
+            border-color: var(--session-accent);
+            transform: translateY(-3px);
+            box-shadow: 0 0 28px rgba(0,0,0,.4);
+        }
+
+        .session-header {
+            padding: 22px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background .25s;
+            position: relative;
+        }
+
+        .session-header:hover { background: var(--bg3); }
+
+        .session-header::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: pulse 8s ease-in-out infinite;
+            left: 0; top: 0;
+            width: 3px; height: 100%;
+            background: var(--session-accent);
+            opacity: 0;
+            transition: opacity .3s;
         }
+        .session-header:hover::before,
+        .session-card.open .session-header::before { opacity: 1; }
 
-        .cta-content {
+        .session-left { display: flex; align-items: center; gap: 16px; }
+
+        .session-icon-wrap {
+            width: 56px; height: 56px;
+            border-radius: 10px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
             position: relative;
-            z-index: 1;
+        }
+        .session-icon-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 12px;
+            background: var(--session-accent);
+            opacity: .08;
+            filter: blur(10px);
         }
 
-        .cta-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            font-weight: 900;
-            color: white;
-            margin-bottom: 1rem;
-            line-height: 1.3;
+        .session-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .65rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: 4px;
         }
 
-        .cta-subtitle {
-            font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 2rem;
-            max-width: 700px;
+        .session-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .chevron {
+            color: var(--muted);
+            font-size: .85rem;
+            transition: transform .3s;
+            flex-shrink: 0;
+        }
+        .session-card.open .chevron { transform: rotate(90deg); }
+
+        /* ─── SESSION CONTENT ─── */
+        .session-content {
+            display: none;
+            padding: 0 24px 28px 24px;
+            border-top: 1px solid var(--border);
+            animation: slideDown .35s ease-out;
+        }
+        .session-content.active { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── KEY CONCEPT BOX ─── */
+        .key-concept {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--session-accent);
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin: 20px 0 28px;
+        }
+
+        .key-concept-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--session-accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .key-concept-text {
+            font-size: .92rem;
+            color: var(--text);
+            line-height: 1.75;
+        }
+
+        /* ─── CONTENT SECTIONS ─── */
+        .content-section {
+            margin-bottom: 28px;
+            padding-left: 18px;
+            border-left: 2px solid var(--border);
+            transition: border-color .3s;
+        }
+        .content-section:hover { border-left-color: var(--session-accent); }
+
+        .content-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .content-section-title::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--session-accent);
+            flex-shrink: 0;
+        }
+
+        .items-grid { display: grid; gap: 8px; }
+
+        .item {
+            padding: 14px 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: border-color .3s, transform .25s, background .25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0;
+            width: 2px; height: 100%;
+            background: var(--session-accent);
+            transform: scaleY(0);
+            transition: transform .3s;
+        }
+        .item:hover {
+            border-color: var(--session-accent);
+            background: rgba(255,255,255,.03);
+            transform: translateX(4px);
+        }
+        .item:hover::before { transform: scaleY(1); }
+
+        .item-name {
+            font-weight: 700;
+            color: var(--white);
+            font-size: .93rem;
+            margin-bottom: 4px;
+        }
+
+        .item-desc {
+            font-size: .83rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ─── COMPARISON TABLE ─── */
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .85rem;
+        }
+
+        .comparison-table th {
+            background: var(--bg3);
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table tr:hover td { background: var(--bg3); }
+
+        /* ─── BADGES ─── */
+        .badge-tag {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .badge-pro     { background: rgba(0,230,118,.12); color: var(--green); border: 1px solid rgba(0,230,118,.3); }
+        .badge-new     { background: rgba(0,188,212,.12); color: var(--cyan);  border: 1px solid rgba(0,188,212,.3); }
+        .badge-caution { background: rgba(255,82,82,.12); color: var(--red);   border: 1px solid rgba(255,82,82,.3); }
+        .badge-amber   { background: rgba(255,171,0,.12); color: var(--amber); border: 1px solid rgba(255,171,0,.3); }
+
+        /* ─── CODE BLOCK ─── */
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: .82rem;
+            color: var(--cyan);
+            margin-top: 12px;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+        .code-block .kw  { color: #bb9af7; }
+        .code-block .fn  { color: var(--cyan); }
+        .code-block .str { color: var(--amber); }
+        .code-block .cm  { color: var(--muted); }
+        .code-block .gn  { color: var(--green); }
+
+        /* ─── CTA SECTION ─── */
+        .cta-section {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-top: 2px solid var(--green);
+            border-radius: 14px;
+            padding: 48px 40px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+
+        .cta-section p {
+            color: var(--muted);
+            font-size: 1rem;
+            margin-bottom: 32px;
+            max-width: 520px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .cta-button {
+        .cta {
             display: inline-block;
-            background: white;
-            color: var(--primary);
-            padding: 1.25rem 3rem;
-            border-radius: 1rem;
-            font-weight: 700;
-            font-size: 1.125rem;
+            background: var(--green);
+            color: #000;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 16px 40px;
+            border-radius: 6px;
             text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
+            letter-spacing: .03em;
+            transition: transform .2s, box-shadow .2s, background .2s;
+        }
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0,230,118,.35);
+            background: #33ff99;
         }
 
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: var(--accent-light);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
+        .guarantee-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 28px;
+            justify-content: center;
+            margin-top: 24px;
         }
 
-        .cta-button:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .cta-button:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .cta-button span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .key-concept {
-            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-            border-left: 4px solid var(--accent);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .key-concept-title {
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 0.75rem;
+        .g-item {
+            font-size: .85rem;
+            color: var(--muted);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 6px;
+        }
+        .g-item span { color: var(--green); font-weight: 700; }
+
+        /* ─── RESOURCE ROW ─── */
+        .resource-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 36px;
         }
 
-        .key-concept-text {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
+        .res-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .78rem;
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: border-color .3s, color .3s;
         }
+        .res-link:hover { border-color: var(--green); color: var(--green); }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* ─── FOOTER ─── */
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: .82rem;
         }
+        footer a { color: #25D366; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
 
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                max-height: 0;
-            }
-            to {
-                opacity: 1;
-                max-height: 5000px;
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 0.1;
-            }
-            50% {
-                transform: scale(1.1);
-                opacity: 0.2;
-            }
-        }
-
+        /* ─── RESPONSIVE ─── */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .subtitle {
-                font-size: 1.25rem;
-            }
-
-            .session-header {
-                padding: 1.5rem;
-            }
-
-            .session-icon {
-                width: 48px;
-                height: 48px;
-            }
-
-            .session-title {
-                font-size: 1.25rem;
-            }
-
-            .cta-title {
-                font-size: 1.5rem;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
+            .navbar { flex-direction: column; gap: 12px; text-align: center; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .cta-section { padding: 32px 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-badge">Curso Profesional</div>
-            <h1>Dominio Profesional de Google Sheets</h1>
-            <p class="subtitle">De Básico a Avanzado</p>
-            <p class="tagline">
-                "La migración de entornos locales a Google Sheets no es simplemente un cambio de software, 
-                sino una evolución hacia la inteligencia de negocios colaborativa."
-            </p>
 
-            <div class="info-grid">
-                <div class="info-card" style="--delay: 0s">
-                    <div class="info-icon">
-                        <i data-lucide="clock" style="color: white; width: 20px; height: 20px;"></i>
+<!-- NAV -->
+<nav class="navbar">
+    <div class="logo">sheets<span>://</span>pro_level</div>
+    <div class="nav-links">
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/index.html" target="_blank">
+            <i class="fas fa-home"></i> Landing
+        </a>
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/cv.html" target="_blank">
+            <i class="fas fa-id-card"></i> Instructor
+        </a>
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/temario.pdf" target="_blank">
+            <i class="fas fa-file-pdf"></i> PDF
+        </a>
+        <a href="https://wa.me/message/JG7VSAITBDBVO1" target="_blank" class="wa">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+    </div>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="badge">// contenido_tematico · Nivel Avanzado · Mayo 2026</div>
+
+    <h1>
+        <span class="accent-green">QUERY() Avanzado</span> ·
+        <span class="accent-cyan">Scripts con IA</span> ·
+        <span class="accent-amber">Proyectos Reales</span><br>
+        Desglose completo de cada sesión
+    </h1>
+
+    <p class="page-tagline">
+        "No necesitas saber programar. Necesitas saber pedirle a la IA que programe por ti."
+    </p>
+
+    <div class="pill-row">
+        <div class="pill"><div class="dot dot-green"></div> 3 sesiones · 1:45 hrs c/u</div>
+        <div class="pill"><div class="dot dot-cyan"></div> 26, 27 y 28 de Mayo 2026</div>
+        <div class="pill"><div class="dot dot-amber"></div> Online en vivo + grabaciones</div>
+        <div class="pill"><div class="dot dot-green"></div> Diploma digital incluido</div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+    <div class="section-label">// curriculum.detalle</div>
+    <h2 class="section-heading">Tres sesiones. Cero código manual.</h2>
+    <p class="section-sub">Todo el código de Apps Script lo genera ChatGPT, Claude o Gemini. Tú construyes los sistemas, la IA escribe el código.</p>
+
+    <div class="sessions">
+
+        <!-- ══════════════════════════════════════════
+             SESIÓN 01 · QUERY() AVANZADO
+        ══════════════════════════════════════════ -->
+        <div class="session-card" style="--session-accent: #00e676;">
+            <div class="session-header" onclick="toggleSession(this)">
+                <div class="session-left">
+                    <div class="session-icon-wrap">🗃️</div>
+                    <div>
+                        <div class="session-num">// Sesión 01</div>
+                        <div class="session-title">QUERY() Avanzado</div>
                     </div>
-                    <div class="info-text">3 sesiones progresivas</div>
                 </div>
-                <div class="info-card" style="--delay: 0.1s">
-                    <div class="info-icon">
-                        <i data-lucide="users" style="color: white; width: 20px; height: 20px;"></i>
-                    </div>
-                    <div class="info-text">Capacitación en línea</div>
-                </div>
-                <div class="info-card" style="--delay: 0.2s">
-                    <div class="info-icon">
-                        <i data-lucide="award" style="color: white; width: 20px; height: 20px;"></i>
-                    </div>
-                    <div class="info-text">Certificación profesional</div>
-                </div>
-                <div class="info-card" style="--delay: 0.3s">
-                    <div class="info-icon">
-                        <i data-lucide="trending-up" style="color: white; width: 20px; height: 20px;"></i>
-                    </div>
-                    <div class="info-text">De básico a experto BI</div>
-                </div>
+                <i class="fas fa-chevron-right chevron"></i>
             </div>
-        </div>
+            <div class="session-content">
 
-        <div class="sessions">
-            <div class="session-card" style="--delay: 0.2s; --session-color: #0f766e;">
-                <div class="session-header" onclick="toggleSession(this)">
-                    <div class="session-left">
-                        <div class="session-icon" style="background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);">
-                            <i data-lucide="shield-check" style="color: white; width: 32px; height: 32px;"></i>
-                        </div>
-                        <div class="session-info">
-                            <h3>Sesión 1</h3>
-                            <div class="session-title">Fundamentos y Colaboración Estratégica</div>
-                        </div>
+                <div class="key-concept">
+                    <div class="key-concept-label">
+                        <i class="fas fa-bolt"></i> Concepto Clave
                     </div>
-                    <i data-lucide="chevron-right" class="chevron" style="width: 24px; height: 24px;"></i>
+                    <div class="key-concept-text">
+                        <code>QUERY()</code> es el motor SQL nativo de Google Sheets. Con él construyes reportes dinámicos, tablas cruzadas y análisis multicritrio sin salir de tu hoja — y sin escribir una sola macro.
+                    </div>
                 </div>
-                <div class="session-content">
-                    <div class="key-concept">
-                        <div class="key-concept-title">
-                            <i data-lucide="lightbulb" style="width: 20px; height: 20px;"></i>
-                            Concepto Clave
+
+                <!-- Cláusulas Core -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Cláusulas Core: SELECT · WHERE · ORDER BY · LABEL</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">SELECT con formato</div>
+                            <div class="item-desc">Controla exactamente qué columnas retornar y en qué orden. Combina con LABEL para renombrar cabeceras y FORMAT para aplicar máscaras de fecha o número directamente en la consulta.</div>
                         </div>
-                        <div class="key-concept-text">
-                            Para construir sistemas de datos escalables, el primer paso es establecer una higiene operativa rigurosa.
+                        <div class="item">
+                            <div class="item-name">WHERE con condiciones encadenadas</div>
+                            <div class="item-desc">Filtra filas con operadores AND, OR y NOT. Aprende a filtrar por contiene, empieza con, rango de fechas y valores dinámicos usando referencias de celda dentro de la cadena de consulta.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">ORDER BY · LIMIT · OFFSET</div>
+                            <div class="item-desc">Ordena resultados ascendente o descendentemente por múltiples columnas. Usa LIMIT para muestras y OFFSET para paginación de datasets grandes.</div>
                         </div>
                     </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Gestión de Archivos e Importación</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Manejo de archivos (Importar, Compartir, Publicar)</div>
-                                <div class="item-desc">Domine las mejores prácticas para cargar, compartir y publicar datos de forma segura y eficiente</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">Importación Estratégica</div>
-                                <div class="item-desc">Priorice archivos CSV para cargas masivas por su ligereza y seguridad</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">Control de Versiones</div>
-                                <div class="item-desc">Use el historial para recuperación ante desastres sin duplicar archivos</div>
-                            </div>
-                        </div>
+                    <div class="code-block">
+<span class="cm">// Ejemplo: top 10 ventas de México en 2025, ordenadas de mayor a menor</span>
+<span class="fn">QUERY</span>(<span class="str">datos</span>, <span class="str">"SELECT B, SUM(C) WHERE D='MX' AND YEAR(A)=2025 GROUP BY B ORDER BY SUM(C) DESC LIMIT 10 LABEL SUM(C) 'Total'"</span>)
                     </div>
+                </div>
 
-                    <div class="section">
-                        <h4 class="section-title">Formato y Diseño Profesional</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Inmovilizar filas, formato y diseño profesional</div>
-                                <div class="item-desc">Cree hojas de cálculo con apariencia profesional mediante el uso estratégico de encabezados fijos y diseño coherente</div>
-                            </div>
+                <!-- GROUP BY + Agregación -->
+                <div class="content-section">
+                    <h4 class="content-section-title">GROUP BY y Funciones de Agregación</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">SUM · AVG · COUNT · MAX · MIN</div>
+                            <div class="item-desc">Consolida datos por categorías usando las cinco funciones de agregación de QUERY. Aprende cuándo usar COUNT vs COUNT(columna) y cómo combinar varias agregaciones en un solo SELECT.</div>
                         </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Protección y Validación de Datos</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Protección de datos y validaciones</div>
-                                <div class="item-desc">Implemente controles de calidad mediante validación de datos y protección de celdas críticas</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Referencias de Celdas</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Rangos con nombre y referencias (Relativas/Absolutas)</div>
-                                <div class="item-desc">Optimice sus fórmulas utilizando referencias absolutas ($), relativas y rangos nombrados para mayor claridad y mantenibilidad</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Herramientas de Análisis Visual</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Filtros, vistas y tablas dinámicas</div>
-                                <div class="item-desc">Analice grandes volúmenes de datos mediante filtros avanzados, vistas personalizadas y tablas dinámicas para insights instantáneos</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Seguridad y Niveles de Acceso</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Roles de Usuario</div>
-                                <div class="item-desc">Defina quién es Lector, Comentarista o Editor según las necesidades de colaboración de su equipo</div>
-                            </div>
+                        <div class="item">
+                            <div class="item-name">Agrupamiento multinivel</div>
+                            <div class="item-desc">Agrupa por más de una columna simultáneamente para crear jerarquías de análisis. Ejemplo: consolidar ventas por región, luego por categoría de producto y finalmente por mes.</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="session-card" style="--delay: 0.4s; --session-color: #7c3aed;">
-                <div class="session-header" onclick="toggleSession(this)">
-                    <div class="session-left">
-                        <div class="session-icon" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">
-                            <i data-lucide="wrench" style="color: white; width: 32px; height: 32px;"></i>
+                <!-- PIVOT dinámico -->
+                <div class="content-section">
+                    <h4 class="content-section-title">PIVOT Dinámico: Tablas Cruzadas sin Fórmula Manual</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Cláusula PIVOT</div>
+                            <div class="item-desc">Transforma valores únicos de una columna en cabeceras de columna nuevas de forma automática. Cuando lleguen nuevas categorías al dataset, la tabla se actualiza sola — sin necesidad de ajustar nada.</div>
                         </div>
-                        <div class="session-info">
-                            <h3>Sesión 2</h3>
-                            <div class="session-title">Fórmulas Poderosas</div>
+                        <div class="item">
+                            <div class="item-name">GROUP BY + PIVOT combinados</div>
+                            <div class="item-desc">La combinación más poderosa de QUERY: agrupa filas Y pivotea columnas en una sola consulta, generando una tabla dinámica completa con una sola fórmula.</div>
                         </div>
                     </div>
-                    <i data-lucide="chevron-right" class="chevron" style="width: 24px; height: 24px;"></i>
                 </div>
-                <div class="session-content">
-                    <div class="key-concept">
-                        <div class="key-concept-title">
-                            <i data-lucide="lightbulb" style="width: 20px; height: 20px;"></i>
-                            Concepto Clave
+
+                <!-- Filtros Avanzados -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Filtros por Fecha, Texto y Condiciones Múltiples</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Operadores de fecha en QUERY</div>
+                            <div class="item-desc">Filtra con YEAR(), MONTH(), DAY() y rangos con date 'YYYY-MM-DD'. Construye filtros dinámicos que se ajustan al mes actual usando concatenación de texto en la consulta.</div>
                         </div>
-                        <div class="key-concept-text">
-                            Domine las fórmulas esenciales y avanzadas que transforman datos crudos en información procesable y automatizada.
+                        <div class="item">
+                            <div class="item-name">Filtros de texto: contains · starts with · matches</div>
+                            <div class="item-desc">Usa contains para búsqueda parcial, starts with para prefijos y matches con expresiones regulares para patrones complejos. Mucho más potente que BUSCARV para datos no exactos.</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="section">
-                        <h4 class="section-title">Funciones Esenciales</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">SUMA, PROMEDIO, MAX, MIN</div>
-                                <div class="item-desc">Fundamentos matemáticos para análisis cuantitativo: calcule totales, promedios y valores extremos con precisión</div>
-                            </div>
+                <!-- QUERY Anidado + ARRAYFORMULA -->
+                <div class="content-section">
+                    <h4 class="content-section-title">QUERY Anidado y Combinación con ARRAYFORMULA</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Subconsultas: QUERY dentro de QUERY</div>
+                            <div class="item-desc">Usa el resultado de una consulta como fuente de otra para filtrar sobre agregados — algo que no es posible con WHERE normal. Patrón clave para arquitecturas de múltiples hojas.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">QUERY + ARRAYFORMULA</div>
+                            <div class="item-desc">Extiende columnas calculadas dentro de QUERY usando ARRAYFORMULA como fuente de datos. Crea columnas derivadas en tiempo real sin alterar la hoja de origen.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">QUERY + IMPORTRANGE</div>
+                            <div class="item-desc">Consulta datos de otras hojas de cálculo externas directamente con QUERY(IMPORTRANGE(...), "..."). Arquitectura de datos distribuidos sin necesidad de copiar datos manualmente.</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="section">
-                        <h4 class="section-title">Manipulación de Texto</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">SPLIT, JOIN, MAYUSCULAS</div>
-                                <div class="item-desc">Transforme y formatee cadenas de texto: divida datos delimitados, combine valores y normalice formatos de texto</div>
-                            </div>
+                <!-- Arquitectura -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Arquitectura: Hoja de Datos vs. Hoja de Reporte</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Separación de responsabilidades</div>
+                            <div class="item-desc">El patrón profesional: una hoja recibe datos crudos (nunca se toca), otra hoja contiene solo QUERYs que generan los reportes. Si cambian los datos, los reportes se actualizan solos.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Dashboard con QUERY como motor</div>
+                            <div class="item-desc">Construye un tablero de control completo donde cada sección es una QUERY diferente apuntando a la misma fuente. Escalable, mantenible y actualizable con un clic.</div>
                         </div>
                     </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Funciones de Búsqueda y Referencia</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">UNIQUE, BUSCARV, BUSCARH, TRANSPONER</div>
-                                <div class="item-desc">Extraiga valores únicos, busque datos vertical y horizontalmente, y reorganice matrices para análisis multidimensional</div>
-                            </div>
-                        </div>
+                    <div class="table-wrap">
                         <table class="comparison-table">
                             <thead>
                                 <tr>
-                                    <th>Función</th>
-                                    <th>Uso</th>
-                                    <th>Recomendación</th>
+                                    <th>Enfoque</th>
+                                    <th>Cómo funciona</th>
+                                    <th>Nivel</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><strong>BUSCARV (VLOOKUP)</strong></td>
-                                    <td>Búsqueda vertical tradicional</td>
-                                    <td><span class="badge badge-obsolete">Obsoleto</span></td>
+                                    <td><strong>Tabla dinámica manual</strong></td>
+                                    <td>Arrastrar campos, actualizar a mano</td>
+                                    <td><span class="badge-tag badge-caution">Básico</span></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>XLOOKUP</strong></td>
-                                    <td>Búsqueda bidireccional moderna</td>
-                                    <td><span class="badge badge-professional">Estándar Pro</span></td>
+                                    <td><strong>QUERY() + PIVOT</strong></td>
+                                    <td>Una fórmula, actualización automática</td>
+                                    <td><span class="badge-tag badge-pro">Pro</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>QUERY anidado</strong></td>
+                                    <td>Filtros sobre agregados, arquitectura escalable</td>
+                                    <td><span class="badge-tag badge-new">Avanzado</span></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
 
-                    <div class="section">
-                        <h4 class="section-title">Condicionales Avanzados</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">SI, SI.ERROR, SUMAR.SI</div>
-                                <div class="item-desc">Cree lógica condicional sofisticada: evalúe condiciones, maneje errores elegantemente y sume con criterios específicos</div>
-                            </div>
-                        </div>
+            </div>
+        </div><!-- /sesión 01 -->
+
+        <!-- ══════════════════════════════════════════
+             SESIÓN 02 · SCRIPTS GENERADOS CON IA
+        ══════════════════════════════════════════ -->
+        <div class="session-card" style="--session-accent: #00bcd4;">
+            <div class="session-header" onclick="toggleSession(this)">
+                <div class="session-left">
+                    <div class="session-icon-wrap">🤖</div>
+                    <div>
+                        <div class="session-num">// Sesión 02</div>
+                        <div class="session-title">Scripts de Apps Script generados con IA</div>
                     </div>
+                </div>
+                <i class="fas fa-chevron-right chevron"></i>
+            </div>
+            <div class="session-content">
 
-                    <div class="section">
-                        <h4 class="section-title">Fórmulas de Arreglos</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">ARRAYFORMULA y manejo de arreglos</div>
-                                <div class="item-desc">Potencie sus cálculos procesando rangos completos con una sola fórmula, eliminando la necesidad de copiar fórmulas manualmente</div>
-                            </div>
+                <div class="key-concept">
+                    <div class="key-concept-label">
+                        <i class="fas fa-bolt"></i> Concepto Clave
+                    </div>
+                    <div class="key-concept-text">
+                        No necesitas aprender a programar. ChatGPT, Claude y Gemini escriben el código de Apps Script por ti — tú solo necesitas saber qué pedirle, cómo pegarlo y cómo hacerlo funcionar. En esta sesión usamos IA como copiloto para construir automatizaciones reales desde cero.
+                    </div>
+                </div>
+
+                <!-- El flujo de trabajo -->
+                <div class="content-section">
+                    <h4 class="content-section-title">El Flujo de Trabajo: IA → Editor → Sheets</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Entender el editor sin ser programador</div>
+                            <div class="item-desc">Conoce el entorno mínimo que necesitas: dónde pegar el código que genera la IA, cómo ejecutarlo, cómo leer el registro de errores y cómo darle permisos a tu script. Todo en menos de 10 minutos.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">ChatGPT, Claude y Gemini como generadores de código</div>
+                            <div class="item-desc">Comparamos los tres modelos aplicados a la misma tarea de Apps Script. Aprende cuál responde mejor a qué tipo de solicitud, cómo darle el contexto correcto y cómo pedirle que corrija su propio código cuando falla.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Ciclo pedir → pegar → probar → corregir con IA</div>
+                            <div class="item-desc">El flujo profesional real: describes lo que quieres en lenguaje natural, pegas el código generado, lo ejecutas, copias el error que aparece de vuelta a la IA y le pides que lo corrija. Sin foros, sin tutoriales, sin frustraciones.</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="session-card" style="--delay: 0.6s; --session-color: #ea580c;">
-                <div class="session-header" onclick="toggleSession(this)">
-                    <div class="session-left">
-                        <div class="session-icon" style="background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);">
-                            <i data-lucide="search" style="color: white; width: 32px; height: 32px;"></i>
+                <!-- Cómo hablarle a la IA -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Cómo Pedirle Scripts a la IA: Prompts que Funcionan</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Dar contexto de la estructura de tu hoja</div>
+                            <div class="item-desc">La IA genera código mucho mejor cuando le describes tu hoja: nombres de columnas, en qué hoja están los datos, qué quieres que haga y cuál es el resultado esperado. Aprende la plantilla de prompt que usamos en cada ejercicio del curso.</div>
                         </div>
-                        <div class="session-info">
-                            <h3>Sesión 3</h3>
-                            <div class="session-title">Analítica Avanzada con QUERY</div>
+                        <div class="item">
+                            <div class="item-name">Pedir scripts incrementales, no todo de golpe</div>
+                            <div class="item-desc">Estrategia clave: divide el problema en pasos pequeños. Primero pídele que lea los datos, luego que los filtre, luego que envíe el correo. Scripts más cortos y simples son más fáciles de verificar y corregir.</div>
                         </div>
-                    </div>
-                    <i data-lucide="chevron-right" class="chevron" style="width: 24px; height: 24px;"></i>
-                </div>
-                <div class="session-content">
-                    <div class="key-concept">
-                        <div class="key-concept-title">
-                            <i data-lucide="lightbulb" style="width: 20px; height: 20px;"></i>
-                            Concepto Clave
-                        </div>
-                        <div class="key-concept-text">
-                            La función QUERY permite ejecutar análisis complejos con sintaxis tipo SQL directamente en Google Sheets, transformando datos crudos en información procesable mediante consultas estructuradas.
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Cláusulas Principales de QUERY</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">SELECT</div>
-                                <div class="item-desc">Selecciona qué columnas retornar y en qué orden. Si se omite, todas las columnas de la tabla son retornadas en su orden predeterminado</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">WHERE</div>
-                                <div class="item-desc">Retorna únicamente las filas que coinciden con una condición. Si se omite, todas las filas son retornadas</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">GROUP BY</div>
-                                <div class="item-desc">Agrega valores a través de filas, permitiendo consolidar datos por categorías específicas</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">PIVOT</div>
-                                <div class="item-desc">Transforma valores distintos en columnas en nuevas columnas, creando tablas dinámicas para análisis multidimensional</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">ORDER BY</div>
-                                <div class="item-desc">Ordena filas por valores en columnas, permitiendo clasificación ascendente o descendente</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">LIMIT</div>
-                                <div class="item-desc">Limita el número de filas retornadas, útil para muestras o resúmenes de datos grandes</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">OFFSET</div>
-                                <div class="item-desc">Omite un número dado de primeras filas, permitiendo paginación de resultados</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">LABEL</div>
-                                <div class="item-desc">Establece etiquetas de columnas personalizadas para mejorar la presentación de resultados</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">FORMAT</div>
-                                <div class="item-desc">Formatea los valores en ciertas columnas usando patrones de formato específicos</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">OPTIONS</div>
-                                <div class="item-desc">Establece opciones adicionales para personalizar el comportamiento de la consulta</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Sintaxis y Estructura</h4>
-                        <div class="key-concept" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left-color: #3b82f6;">
-                            <div class="key-concept-title" style="color: #3b82f6;">
-                                <i data-lucide="code" style="width: 20px; height: 20px;"></i>
-                                Orden de las Cláusulas
-                            </div>
-                            <div class="key-concept-text">
-                                La sintaxis del lenguaje de consulta está compuesta de las siguientes cláusulas. Cada cláusula comienza con una o dos palabras clave. <strong>Todas las cláusulas son opcionales</strong>. Las cláusulas se separan por espacios. El orden de las cláusulas debe ser el siguiente:<br><br>
-                                <code style="background: white; padding: 0.5rem 1rem; border-radius: 0.5rem; display: block; font-family: monospace; color: #1e40af;">
-                                SELECT → WHERE → GROUP BY → PIVOT → ORDER BY → LIMIT → OFFSET → LABEL → FORMAT → OPTIONS
-                                </code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h4 class="section-title">Aplicaciones Profesionales</h4>
-                        <div class="items-grid">
-                            <div class="item">
-                                <div class="item-name">Análisis de Datos Complejos</div>
-                                <div class="item-desc">Combine múltiples cláusulas para crear reportes dinámicos, dashboards interactivos y análisis de business intelligence sin necesidad de herramientas externas</div>
-                            </div>
-                            <div class="item">
-                                <div class="item-name">Consolidación Automatizada</div>
-                                <div class="item-desc">Agregue, filtre y transforme grandes volúmenes de datos en tiempo real para obtener insights accionables instantáneamente</div>
-                            </div>
+                        <div class="item">
+                            <div class="item-name">Pedirle a la IA que explique su propio código</div>
+                            <div class="item-desc">Pídele siempre que incluya comentarios en español línea por línea. Así entiendes qué hace cada parte sin necesitar conocimientos previos de JavaScript y puedes modificar los valores que te interesan.</div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Lo que la IA puede generar -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Tipos de Scripts que Generamos en Esta Sesión</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Scripts de lectura y escritura en Sheets</div>
+                            <div class="item-desc">Le pedimos a la IA scripts que leen rangos de datos, los procesan con lógica condicional y escriben resultados en otras celdas u hojas. Base de casi cualquier automatización.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Triggers generados con IA</div>
+                            <div class="item-desc">Describimos el comportamiento que queremos (ejecutar cada lunes a las 8 AM, al editar una celda específica, al enviar un formulario) y la IA genera el trigger completo listo para activar.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Menús y botones personalizados</div>
+                            <div class="item-desc">Generamos con IA scripts que añaden menús propios a la barra de Sheets y botones que cualquier miembro del equipo puede usar sin tocar el editor de código.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Scripts de formato y limpieza de datos</div>
+                            <div class="item-desc">Pedimos a la IA scripts que normalizan texto, eliminan duplicados, aplican formatos condicionales por código y reorganizan datos automáticamente al llegar nueva información.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depurar con IA -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Depurar y Mejorar Scripts con la Misma IA</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">El error como prompt: copiar y pegar fallas</div>
+                            <div class="item-desc">Cuando un script falla, el registro de ejecuciones muestra el mensaje de error exacto. Aprende a copiarlo junto con el código a la IA y a pedirle que identifique y corrija el problema — sin entender el error tú mismo.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Pedir mejoras y variaciones del mismo script</div>
+                            <div class="item-desc">Una vez que un script funciona, le pides a la IA que lo mejore: que agregue manejo de errores, que funcione para múltiples hojas o que sea más rápido. Iteras sobre código que ya sabes que sirve.</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <th>Fortaleza para Apps Script</th>
+                                    <th>Mejor para…</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>ChatGPT</strong></td>
+                                    <td>Scripts completos con buena estructura</td>
+                                    <td><span class="badge-tag badge-pro">Tareas largas</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Claude</strong></td>
+                                    <td>Explicaciones claras y código comentado</td>
+                                    <td><span class="badge-tag badge-new">Aprender leyendo</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gemini</strong></td>
+                                    <td>Integración nativa con Google Workspace</td>
+                                    <td><span class="badge-tag badge-amber">Scripts de Drive/Gmail</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
+        </div><!-- /sesión 02 -->
 
-
-        </div>
-
-        <div class="cta-section">
-            <div class="cta-content">
-                <h2 class="cta-title">Conviértase en Arquitecto de Datos</h2>
-                <p class="cta-subtitle">
-                    Transforme su carrera con dominio profesional de Google Sheets
-                </p>
-                <a href="https://forms.gle/uAsVFaN8m36jAhiu7" target="_blank" class="cta-button">
-                    <span>Regístrate</span>
-                </a>
+        <!-- ══════════════════════════════════════════
+             SESIÓN 03 · PROYECTOS REALES CON IA
+        ══════════════════════════════════════════ -->
+        <div class="session-card" style="--session-accent: #ffab00;">
+            <div class="session-header" onclick="toggleSession(this)">
+                <div class="session-left">
+                    <div class="session-icon-wrap">⚙️</div>
+                    <div>
+                        <div class="session-num">// Sesión 03</div>
+                        <div class="session-title">Proyectos reales: tableros, correos y más</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right chevron"></i>
             </div>
+            <div class="session-content">
+
+                <div class="key-concept">
+                    <div class="key-concept-label">
+                        <i class="fas fa-bolt"></i> Concepto Clave
+                    </div>
+                    <div class="key-concept-text">
+                        Todo el código de esta sesión lo genera la IA. El objetivo no es que aprendas JavaScript — es que salgas con sistemas funcionando: un tablero conectado a tu base de datos en Sheets, un sistema de correos masivos y otras automatizaciones reales construidas en vivo durante la clase.
+                    </div>
+                </div>
+
+                <!-- Proyecto 1: Tablero -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Proyecto 1 · Tablero de Control enlazado a Base de Datos en Sheets</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Diseño de la arquitectura con la IA</div>
+                            <div class="item-desc">Le describimos a ChatGPT o Claude la estructura del tablero que queremos: qué métricas mostrar, desde qué hojas tomarlas y cómo presentarlas. La IA propone la arquitectura de hojas y el script que las conecta.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Script que actualiza el tablero automáticamente</div>
+                            <div class="item-desc">Generamos con IA un script que lee la hoja de base de datos, calcula totales, promedios y comparativas, y escribe los resultados en la hoja del tablero. Un trigger por tiempo lo ejecuta cada vez que se actualiza el archivo.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Formato condicional por código</div>
+                            <div class="item-desc">La IA genera el script que colorea celdas del tablero automáticamente: verde si la meta se cumple, rojo si hay alerta, amarillo si está en riesgo. El tablero se autoactualiza visualmente sin intervención.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Botón "Actualizar tablero" generado con IA</div>
+                            <div class="item-desc">Agregamos un botón visible en la hoja del tablero que cualquier usuario puede presionar para forzar la actualización manual. La IA genera el script del botón y el de la actualización en una sola solicitud.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proyecto 2: Correos masivos -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Proyecto 2 · Correos Masivos desde una Base de Datos en Sheets</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Base de datos de contactos en Sheets</div>
+                            <div class="item-desc">Estructura correcta de la hoja de contactos: nombre, correo, empresa, estado del envío y columna de personalización. La IA nos ayuda a diseñar la hoja para que el script la lea sin errores.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Script de envío masivo con personalización por fila</div>
+                            <div class="item-desc">Generamos con IA un script que recorre cada fila de la base de datos, arma un correo personalizado con el nombre y datos del destinatario y lo envía por GmailApp. Cada correo es diferente aunque el proceso sea automático.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Control de envíos: marcar "enviado" por fila</div>
+                            <div class="item-desc">El script escribe "Enviado ✓" en la columna de estado al terminar cada correo. Si el proceso se interrumpe, al reanudarlo solo procesa las filas sin marcar — nunca se manda dos veces al mismo contacto.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Envío condicional por filtro</div>
+                            <div class="item-desc">Le pedimos a la IA que el script solo envíe correos a filas que cumplan una condición: clientes activos, prospectos sin respuesta o registros de una fecha específica. Campañas segmentadas sin herramientas externas.</div>
+                        </div>
+                    </div>
+                    <div class="code-block">
+<span class="cm">// Prompt que usamos en clase para generar este script:</span>
+<span class="cm">// "Crea un script de Google Apps Script que lea la hoja 'Contactos'.</span>
+<span class="cm">//  Las columnas son: A=Nombre, B=Email, C=Empresa, D=Estado.</span>
+<span class="cm">//  Para cada fila donde D esté vacío, envía un correo a B con asunto</span>
+<span class="cm">//  'Hola [Nombre]' personalizado y escribe 'Enviado' en la columna D."</span>
+                    </div>
+                </div>
+
+                <!-- Proyecto 3: Otros ejemplos -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Proyecto 3 · Más Automatizaciones Generadas en Vivo con IA</h4>
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-name">Notificación automática al responsable por alerta</div>
+                            <div class="item-desc">Script generado con IA que revisa una columna de indicadores y envía un correo de alerta al responsable cuando algún valor supera o baja del umbral definido. Se ejecuta automáticamente cada día con un trigger.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Reporte semanal de KPIs por correo</div>
+                            <div class="item-desc">La IA genera un script que todos los lunes a las 8 AM lee los datos del tablero, construye un resumen en HTML con los KPIs de la semana y lo envía automáticamente a los correos del equipo directivo.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Registro automático de cambios en la hoja</div>
+                            <div class="item-desc">Script con onEdit que registra en una hoja de auditoría quién editó qué celda, qué valor tenía antes y cuál tiene ahora. Trazabilidad completa de cambios sin ningún proceso manual. La IA lo genera en menos de un minuto.</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-name">Importar datos externos y consolidar en Sheets</div>
+                            <div class="item-desc">Generamos con IA un script que descarga datos desde una URL pública (CSV o JSON), los parsea y los pega en una hoja de Sheets automáticamente. Actualización de datos externos sin copiar y pegar nunca más.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla comparativa -->
+                <div class="content-section">
+                    <h4 class="content-section-title">Resumen: Lo que Sale Construido al Final de la Sesión</h4>
+                    <div class="table-wrap">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Sistema</th>
+                                    <th>Qué hace</th>
+                                    <th>Generado con</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Tablero de control</strong></td>
+                                    <td>Se actualiza solo desde la base de datos en Sheets</td>
+                                    <td><span class="badge-tag badge-pro">ChatGPT / Claude</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Envío masivo de correos</strong></td>
+                                    <td>Correos personalizados a cada contacto de la hoja</td>
+                                    <td><span class="badge-tag badge-new">Gemini / ChatGPT</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Alertas automáticas</strong></td>
+                                    <td>Correo al responsable cuando un KPI sale de rango</td>
+                                    <td><span class="badge-tag badge-pro">Claude / ChatGPT</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reporte semanal</strong></td>
+                                    <td>Sale solo cada lunes sin intervención</td>
+                                    <td><span class="badge-tag badge-amber">Cualquier modelo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- /sesión 03 -->
+
+    </div><!-- /sessions -->
+
+    <!-- CTA SECTION -->
+    <div class="cta-section">
+        <div class="section-label" style="justify-content:center; display:flex; margin-bottom:12px;">// registro.open</div>
+        <h2>Automatiza. Analiza. Escala.</h2>
+        <p>Quien domina QUERY(), Apps Script e IA en Sheets no solo ahorra horas: construye ventajas competitivas reales sobre su equipo y su industria.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSemYuen_Rb1M5556Z8oSoSyXLbXAgB7Ohij6jSbpkmbxUJY7w/viewform"
+           target="_blank"
+           class="cta">
+            APARTAR MI LUGAR — $990 MXN
+        </a>
+        <div class="guarantee-row">
+            <div class="g-item"><span>✓</span> Garantía de satisfacción</div>
+            <div class="g-item"><span>✓</span> Solo 7 lugares disponibles</div>
+            <div class="g-item"><span>✓</span> Grupo WhatsApp incluido</div>
+            <div class="g-item"><span>✓</span> Grabaciones por 100 días</div>
         </div>
     </div>
 
-    <script>
-        lucide.createIcons();
+    <!-- RESOURCE ROW -->
+    <div class="resource-row">
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/index.html" class="res-link" target="_blank">🚀 Landing del Curso</a>
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/temario.pdf" class="res-link" target="_blank">📄 Temario PDF</a>
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/riesgos.html" class="res-link" target="_blank">🎯 Riesgos y Miedos</a>
+        <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/cv.html" class="res-link" target="_blank">👤 CV del Instructor</a>
+    </div>
 
-        function toggleSession(header) {
-            const content = header.nextElementSibling;
-            const chevron = header.querySelector('.chevron');
-            const allContents = document.querySelectorAll('.session-content');
-            const allChevrons = document.querySelectorAll('.chevron');
-            
-            allContents.forEach(c => {
-                if (c !== content) {
-                    c.classList.remove('active');
-                }
-            });
-            allChevrons.forEach(ch => {
-                if (ch !== chevron) {
-                    ch.classList.remove('rotated');
-                }
-            });
-            
-            content.classList.toggle('active');
-            chevron.classList.toggle('rotated');
-        }
-    </script>
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2026 Sheets Pro Level — Pedro Medina · Culiacán, Sinaloa, México</p>
+    <p style="margin-top:8px;">
+        <a href="https://wa.me/message/JG7VSAITBDBVO1">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        &nbsp;·&nbsp; Todos los derechos reservados
+    </p>
+</footer>
+
+<script>
+    function toggleSession(header) {
+        const card    = header.parentElement;
+        const content = header.nextElementSibling;
+        const allCards    = document.querySelectorAll('.session-card');
+        const allContents = document.querySelectorAll('.session-content');
+
+        // Cierra todas las demás
+        allCards.forEach(c => { if (c !== card) c.classList.remove('open'); });
+        allContents.forEach(c => { if (c !== content) c.classList.remove('active'); });
+
+        card.classList.toggle('open');
+        content.classList.toggle('active');
+    }
+</script>
 </body>
 </html>
