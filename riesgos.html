@@ -3,283 +3,439 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>De Excel a Google Sheets</title>
+<title>Riesgos y Miedos | Sheets Pro Level</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
   :root {
-    --bg: #0b1120;
-    --card: #131d2e;
-    --border: #1e3a5f;
-    --green: #34a853;
-    --blue: #4285f4;
-    --yellow: #fbbc04;
-    --red: #ea4335;
-    --text: #e8edf5;
-    --dim: #7a8fa8;
-    --gradient: linear-gradient(135deg, #4285f4, #34a853);
+    --bg:     #080c10;
+    --bg2:    #0d1117;
+    --bg3:    #131a23;
+    --border: #1e2d3d;
+    --green:  #00e676;
+    --cyan:   #00bcd4;
+    --amber:  #ffab00;
+    --red:    #ff5252;
+    --text:   #c9d8e8;
+    --muted:  #5c7a96;
+    --white:  #eaf3fc;
   }
+
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+    line-height: 1.65;
   }
 
-  /* HEADER COMPACTO */
+  /* SCANLINE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,230,118,.015) 2px, rgba(0,230,118,.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── NAVBAR ─── */
+  .navbar {
+    background: rgba(8,12,16,.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: -.02em;
+    text-decoration: none;
+  }
+  .logo span { color: var(--muted); }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .9rem;
+    transition: color .2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-links a:hover { color: var(--green); }
+  .nav-links a.wa { color: #25D366; }
+
+  /* ─── HEADER ─── */
   .page-header {
-    text-align: center;
-    padding: 60px 20px 50px;
     position: relative;
+    text-align: center;
+    padding: 72px 24px 60px;
     overflow: hidden;
   }
+  /* grid bg */
   .page-header::before {
     content: '';
     position: absolute;
-    width: 600px; height: 400px;
-    background: radial-gradient(circle, rgba(66,133,244,0.10) 0%, transparent 70%);
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: .35;
+  }
+  /* green glow */
+  .page-header::after {
+    content: '';
+    position: absolute;
     top: -100px; left: 50%;
     transform: translateX(-50%);
+    width: 700px; height: 420px;
+    background: radial-gradient(ellipse at center, rgba(0,230,118,.10) 0%, transparent 70%);
     pointer-events: none;
   }
+
   .badge {
     display: inline-block;
-    background: rgba(66,133,244,0.15);
-    border: 1px solid rgba(66,133,244,0.4);
-    color: #7bb3ff;
-    padding: 6px 18px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    color: var(--red);
+    border: 1px solid var(--red);
+    border-radius: 3px;
+    padding: 4px 12px;
+    margin-bottom: 26px;
+    letter-spacing: .12em;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 22px;
-  }
-  .page-header h1 {
-    font-size: clamp(1.7rem, 5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.2;
-    max-width: 750px;
-    margin: 0 auto 16px;
-  }
-  .page-header h1 em {
-    font-style: normal;
-    background: var(--gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .page-header p {
-    font-size: 1rem;
-    color: var(--dim);
-    max-width: 560px;
-    margin: 0 auto;
-    line-height: 1.7;
+    position: relative;
   }
 
-  /* FILTROS */
-  .filters-wrap {
-    padding: 0 20px 10px;
+  .page-header h1 {
+    font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.15;
+    max-width: 800px;
+    margin: 0 auto 18px;
+    position: relative;
   }
+  .page-header h1 .ag { color: var(--green); }
+  .page-header h1 .ac { color: var(--cyan); }
+  .page-header h1 .aa { color: var(--amber); }
+
+  .page-header p {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 580px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ─── FILTROS ─── */
+  .filters-wrap { padding: 36px 20px 0; }
   .filters {
     display: flex;
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 30px;
+    margin-bottom: 28px;
   }
   .filter-btn {
-    padding: 9px 22px;
-    border-radius: 25px;
-    border: 2px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 8px 20px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
     background: transparent;
-    color: var(--dim);
-    font-size: 0.85rem;
+    color: var(--muted);
+    font-size: .76rem;
     font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all .25s ease;
   }
-  .filter-btn:hover { color: var(--text); border-color: #334e6e; }
-  .filter-btn.active { border-color: transparent; color: white; }
-  .filter-btn[data-f="all"].active { background: #1e3a5f; color: var(--text); border-color: var(--blue); }
-  .filter-btn[data-f="miedo"].active { background: rgba(234,67,53,0.2); color: #ff8a80; border-color: var(--red); }
-  .filter-btn[data-f="riesgo"].active { background: rgba(251,188,4,0.15); color: #ffe57f; border-color: var(--yellow); }
-  .filter-btn[data-f="dolor"].active { background: rgba(66,133,244,0.15); color: #82b1ff; border-color: var(--blue); }
-  .filter-btn[data-f="necesidad"].active { background: rgba(52,168,83,0.15); color: #69f0ae; border-color: var(--green); }
+  .filter-btn:hover { color: var(--text); border-color: #2e4a63; }
+  .filter-btn.active { color: var(--bg); font-weight: 700; border-color: transparent; }
+  .filter-btn[data-f="all"].active   { background: var(--muted); color: var(--bg); }
+  .filter-btn[data-f="miedo"].active    { background: var(--red); }
+  .filter-btn[data-f="riesgo"].active   { background: var(--amber); }
+  .filter-btn[data-f="dolor"].active    { background: var(--cyan); }
+  .filter-btn[data-f="necesidad"].active { background: var(--green); }
 
-  /* PROGRESS */
+  /* ─── PROGRESS ─── */
   .progress-wrap {
-    max-width: 500px;
-    margin: 0 auto 40px;
+    max-width: 480px;
+    margin: 0 auto 44px;
     text-align: center;
     padding: 0 20px;
   }
-  .progress-info { font-size: 0.85rem; color: var(--dim); margin-bottom: 8px; }
-  .progress-track { height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; }
+  .progress-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+    letter-spacing: .05em;
+  }
+  .progress-info span { color: var(--green); font-weight: 700; }
+  .progress-track { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
   .progress-fill {
     height: 100%;
-    background: var(--gradient);
-    border-radius: 10px;
-    transition: width 0.5s ease;
+    background: linear-gradient(90deg, var(--green), var(--cyan));
+    border-radius: 4px;
+    transition: width .5s ease;
     width: 0%;
   }
 
-  /* CARDS GRID */
+  /* ─── CARDS GRID ─── */
   .cards-grid {
-    max-width: 1200px;
+    max-width: 1160px;
     margin: 0 auto;
-    padding: 0 20px 80px;
+    padding: 0 20px 90px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 20px;
   }
+
   .pain-card {
-    background: var(--card);
+    background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 12px;
     padding: 26px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition: border-color .3s, transform .3s, box-shadow .3s;
     position: relative;
     overflow: hidden;
   }
+  /* top accent line */
   .pain-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: 18px 18px 0 0;
-    transition: opacity 0.3s ease;
-    opacity: 0.35;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+    opacity: .4;
+    transition: opacity .3s ease;
   }
   .pain-card:hover::before,
   .pain-card.expanded::before { opacity: 1; }
-  .pain-card[data-cat="miedo"]::before { background: var(--red); }
-  .pain-card[data-cat="riesgo"]::before { background: var(--yellow); }
-  .pain-card[data-cat="dolor"]::before { background: var(--blue); }
+  .pain-card[data-cat="miedo"]::before    { background: var(--red); }
+  .pain-card[data-cat="riesgo"]::before   { background: var(--amber); }
+  .pain-card[data-cat="dolor"]::before    { background: var(--cyan); }
   .pain-card[data-cat="necesidad"]::before { background: var(--green); }
 
   .pain-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.5);
+    border-color: #2e4a63;
   }
-  .pain-card.expanded { border-color: #2a4a6e; }
+  .pain-card.expanded { border-color: #2e4a63; }
 
+  /* ─── CARD CONTENT ─── */
   .card-top {
     display: flex;
     align-items: flex-start;
     gap: 14px;
     margin-bottom: 14px;
   }
-  .card-emoji { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
+  .card-emoji { font-size: 2.2rem; line-height: 1; flex-shrink: 0; }
   .card-meta { flex: 1; }
   .card-tag {
+    font-family: 'JetBrains Mono', monospace;
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 10px;
-    font-size: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: .64rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: .08em;
     margin-bottom: 6px;
   }
-  .tag-miedo { background: rgba(234,67,53,0.18); color: #ff8a80; }
-  .tag-riesgo { background: rgba(251,188,4,0.15); color: #ffe57f; }
-  .tag-dolor { background: rgba(66,133,244,0.15); color: #82b1ff; }
-  .tag-necesidad { background: rgba(52,168,83,0.15); color: #69f0ae; }
+  .tag-miedo    { background: rgba(255,82,82,.15);   color: var(--red); }
+  .tag-riesgo   { background: rgba(255,171,0,.12);   color: var(--amber); }
+  .tag-dolor    { background: rgba(0,188,212,.12);   color: var(--cyan); }
+  .tag-necesidad { background: rgba(0,230,118,.12);  color: var(--green); }
 
-  .card-title-t { font-size: 1.15rem; font-weight: 700; line-height: 1.3; color: var(--text); }
-  .card-quote {
-    color: var(--dim);
-    font-size: 0.9rem;
-    font-style: italic;
-    line-height: 1.5;
-    margin-bottom: 14px;
-    padding-left: 14px;
-    border-left: 2px solid var(--border);
+  .card-title-t {
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--white);
   }
 
+  .card-quote {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    font-size: .8rem;
+    font-style: normal;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--bg3);
+    border-left: 2px solid var(--border);
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* ─── SOLUTION PANEL ─── */
   .solution-panel {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.45s ease, opacity 0.45s ease;
+    transition: max-height .45s ease, opacity .45s ease;
     opacity: 0;
   }
   .pain-card.expanded .solution-panel {
-    max-height: 600px;
+    max-height: 700px;
     opacity: 1;
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--border);
   }
+
   .sol-label {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(52,168,83,0.15);
-    color: #69f0ae;
-    border: 1px solid rgba(52,168,83,0.3);
-    padding: 5px 12px;
-    border-radius: 8px;
-    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
     font-weight: 700;
+    letter-spacing: .06em;
+    padding: 5px 12px;
+    border-radius: 3px;
     margin-bottom: 12px;
+    text-transform: uppercase;
   }
-  .sol-text { font-size: 0.93rem; line-height: 1.65; color: var(--dim); }
-  .sol-text strong { color: var(--text); display: block; margin: 10px 0 4px; font-size: 0.9rem; }
+  .sol-label.green  { background: rgba(0,230,118,.12);  color: var(--green);  border: 1px solid rgba(0,230,118,.3); }
+  .sol-label.cyan   { background: rgba(0,188,212,.12);  color: var(--cyan);   border: 1px solid rgba(0,188,212,.3); }
+  .sol-label.amber  { background: rgba(255,171,0,.12);  color: var(--amber);  border: 1px solid rgba(255,171,0,.3); }
 
+  .sol-text { font-size: .9rem; line-height: 1.7; color: var(--muted); }
+  .sol-text strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    display: block;
+    margin: 10px 0 4px;
+  }
+  .sol-text strong.lbl-red   { color: var(--red); }
+  .sol-text strong.lbl-amber { color: var(--amber); }
+  .sol-text strong.lbl-green { color: var(--green); }
+
+  /* ─── TOGGLE ROW ─── */
   .toggle-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 14px;
   }
-  .toggle-hint { font-size: 0.8rem; color: var(--blue); font-weight: 600; }
-  .toggle-arrow { font-size: 0.85rem; color: var(--blue); transition: transform 0.3s ease; display: inline-block; }
+  .toggle-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    color: var(--green);
+    font-weight: 600;
+    letter-spacing: .05em;
+  }
+  .toggle-arrow {
+    font-size: .85rem;
+    color: var(--green);
+    transition: transform .3s ease;
+    display: inline-block;
+  }
   .pain-card.expanded .toggle-arrow { transform: rotate(180deg); }
+  .pain-card.expanded .toggle-hint::before { content: '// '; }
 
+  /* ─── VIEWED CHECK ─── */
   .viewed-check {
     position: absolute;
-    top: 14px; right: 14px;
-    width: 22px; height: 22px;
+    top: 12px; right: 12px;
+    width: 20px; height: 20px;
     border-radius: 50%;
     background: var(--green);
-    color: white;
-    font-size: 0.7rem;
+    color: #000;
+    font-size: .65rem;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transform: scale(0);
-    transition: all 0.3s ease;
-    font-weight: 700;
+    transition: all .3s ease;
+    font-weight: 800;
   }
   .pain-card.viewed .viewed-check { opacity: 1; transform: scale(1); }
 
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 28px 24px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem;
+    color: var(--muted);
+  }
+  footer a { color: #25D366; text-decoration: none; }
+
   @media (max-width: 768px) {
-    .cards-grid { grid-template-columns: 1fr; padding: 0 15px 60px; }
+    .navbar { flex-direction: column; gap: 12px; }
+    .nav-links { flex-wrap: wrap; justify-content: center; }
+    .cards-grid { grid-template-columns: 1fr; padding: 0 14px 70px; }
   }
 </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="logo" href="https://pedroivanmedina.github.io/CursoExpertoSheets/index.html">sheets<span>://</span>pro_level</a>
+  <div class="nav-links">
+    <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/contenido.html" target="_blank">
+      <i class="fas fa-code"></i> Temario
+    </a>
+    <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/cv.html" target="_blank">
+      <i class="fas fa-id-card"></i> Instructor
+    </a>
+    <a href="https://pedroivanmedina.github.io/CursoExpertoSheets/temario.pdf" target="_blank">
+      <i class="fas fa-file-pdf"></i> PDF
+    </a>
+    <a href="https://wa.me/message/JG7VSAITBDBVO1" target="_blank" class="wa">
+      <i class="fab fa-whatsapp"></i> WhatsApp
+    </a>
+  </div>
+</nav>
+
 <!-- HEADER -->
 <div class="page-header">
-  <div class="badge">⚠️ Lo que te frena de migrar</div>
-  <h1>Sabemos exactamente<br>qué te preocupa de dejar Excel<br>por <em>Google Sheets</em></h1>
-  <p>12 bloqueos reales que tienen los usuarios de Excel. Haz clic en cada tarjeta para ver la solución concreta.</p>
+  <div class="badge">// error_detectado · bloqueos reales</div>
+  <h1>Sabemos exactamente<br>qué te frena de dar el<br>siguiente nivel en <span class="ag">Sheets</span></h1>
+  <p>12 bloqueos reales de usuarios que ya saben lo básico. Haz clic en cada tarjeta para ver la solución concreta del curso.</p>
 </div>
 
 <!-- FILTROS -->
 <div class="filters-wrap">
   <div class="filters">
-    <button class="filter-btn active" data-f="all">Todos</button>
-    <button class="filter-btn" data-f="miedo">😰 Miedos</button>
-    <button class="filter-btn" data-f="riesgo">⚠️ Riesgos</button>
-    <button class="filter-btn" data-f="dolor">💢 Dolores</button>
-    <button class="filter-btn" data-f="necesidad">✅ Necesidades</button>
+    <button class="filter-btn active" data-f="all">// Todos</button>
+    <button class="filter-btn" data-f="miedo">🔴 Miedos</button>
+    <button class="filter-btn" data-f="riesgo">🟡 Riesgos</button>
+    <button class="filter-btn" data-f="dolor">🔵 Dolores</button>
+    <button class="filter-btn" data-f="necesidad">🟢 Necesidades</button>
   </div>
   <div class="progress-wrap">
-    <div class="progress-info">Has explorado <span id="cnt">0</span> de 12 soluciones</div>
+    <div class="progress-info">// exploradas: <span id="cnt">0</span> / 12 soluciones</div>
     <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
   </div>
 </div>
@@ -287,312 +443,335 @@
 <!-- CARDS -->
 <div class="cards-grid" id="grid">
 
+  <!-- MIEDO 1 -->
   <div class="pain-card" data-cat="miedo">
     <div class="viewed-check">✓</div>
     <div class="card-top">
-      <div class="card-emoji">🗂️</div>
+      <div class="card-emoji">💻</div>
       <div class="card-meta">
         <div class="card-tag tag-miedo">Miedo</div>
-        <div class="card-title-t">Perder mis archivos y fórmulas</div>
+        <div class="card-title-t">Apps Script es programar y yo no soy programador</div>
       </div>
     </div>
-    <p class="card-quote">"Tengo años de trabajo en esos .xlsx. ¿Y si lo pierdo todo al migrar?"</p>
+    <p class="card-quote">"Nunca he programado en mi vida. Esto no es para mí."</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Importación sin fricciones</span>
+      <span class="sol-label green">✓ Razonamiento de Sheets, no de código</span>
       <div class="sol-text">
-        <strong>El Miedo:</strong>
-        Perder macros, formatos, fórmulas y estructuras que tomaron años construir.
-        <strong>La Solución en Sheets:</strong>
-        Google Sheets importa archivos .xlsx de forma nativa y con fidelidad muy alta. El curso te enseña a auditar qué cambia y cómo adaptar macros VBA a Google Apps Script — sin empezar de cero.
+        <strong class="lbl-red">// El Miedo:</strong>
+        Pensar que Apps Script requiere formación como desarrollador y años de práctica.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        Pedro enseña Apps Script desde la lógica que ya conoces en Sheets: celdas, rangos y hojas. No aprenderás "programación" en abstracto — aprenderás a automatizar tus procesos concretos paso a paso, con plantillas comentadas en español que puedes adaptar el mismo día.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
+  <!-- MIEDO 2 -->
   <div class="pain-card" data-cat="miedo">
     <div class="viewed-check">✓</div>
     <div class="card-top">
-      <div class="card-emoji">🔒</div>
+      <div class="card-emoji">🔥</div>
       <div class="card-meta">
         <div class="card-tag tag-miedo">Miedo</div>
-        <div class="card-title-t">Seguridad y privacidad de mis datos</div>
+        <div class="card-title-t">Voy a romper mis hojas actuales con los scripts</div>
       </div>
     </div>
-    <p class="card-quote">"No quiero que Google tenga mis datos de clientes o finanzas"</p>
+    <p class="card-quote">"Tengo reportes que usa todo el equipo. ¿Y si los daño sin querer?"</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Permisos granulares + cifrado</span>
+      <span class="sol-label green">✓ Entorno de prueba + buenas prácticas</span>
       <div class="sol-text">
-        <strong>El Miedo:</strong>
-        Sentir que subir datos a la nube los expone a terceros o hackeos.
-        <strong>La Solución en Sheets:</strong>
-        Google Drive cifra datos en tránsito y en reposo. Aprenderás a configurar niveles de acceso por celda, hoja y archivo, y a usar cuentas de Workspace con políticas corporativas de seguridad.
+        <strong class="lbl-red">// El Miedo:</strong>
+        Ejecutar un script mal configurado sobre un archivo de producción real.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        Aprenderás a trabajar siempre en copias de prueba primero. El curso incluye el patrón de "sandbox vs. producción": nunca tocas datos reales hasta que el script está validado. Además verás cómo usar Logger y try/catch para atrapar errores antes de que lleguen a tus datos.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
+  <!-- MIEDO 3 -->
   <div class="pain-card" data-cat="miedo">
     <div class="viewed-check">✓</div>
     <div class="card-top">
       <div class="card-emoji">🧠</div>
       <div class="card-meta">
         <div class="card-tag tag-miedo">Miedo</div>
-        <div class="card-title-t">Volver a aprender desde cero</div>
+        <div class="card-title-t">El nivel es demasiado alto para donde estoy</div>
       </div>
     </div>
-    <p class="card-quote">"Domino Excel. No tengo tiempo para empezar de nuevo."</p>
+    <p class="card-quote">"Sé filtrar y hacer SUM. Siento que me voy a perder desde la sesión 1."</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Curva de aprendizaje de 2 días</span>
+      <span class="sol-label cyan">✓ Prerrequisito claro: solo lo básico</span>
       <div class="sol-text">
-        <strong>El Miedo:</strong>
-        Invertir semanas en una herramienta nueva cuando ya eres productivo con Excel.
-        <strong>La Solución en Sheets:</strong>
-        El 80% de lo que sabes de Excel aplica directamente. Este curso está diseñado para usuarios de Excel: solo te enseñamos las diferencias clave, no lo que ya dominas.
+        <strong class="lbl-red">// El Miedo:</strong>
+        Quedar fuera de lugar entre gente con más experiencia técnica.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        El único prerrequisito es saber usar Google Sheets a nivel básico: celdas, fórmulas simples y filtros. El curso parte desde ahí. QUERY() se enseña como una extensión natural de los filtros que ya usas, y Apps Script empieza desde cero sin asumir conocimientos previos de código.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
+  <!-- RIESGO 1 -->
   <div class="pain-card" data-cat="riesgo">
     <div class="viewed-check">✓</div>
     <div class="card-top">
-      <div class="card-emoji">🌐</div>
+      <div class="card-emoji">📋</div>
       <div class="card-meta">
         <div class="card-tag tag-riesgo">Riesgo</div>
-        <div class="card-title-t">No poder trabajar sin internet</div>
+        <div class="card-title-t">Aprendo QUERY pero no lo puedo aplicar en mi trabajo</div>
       </div>
     </div>
-    <p class="card-quote">"¿Qué pasa si se cae la conexión y tengo una presentación?"</p>
+    <p class="card-quote">"¿Y si los casos del curso no tienen nada que ver con mis datos?"</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Modo sin conexión activable</span>
+      <span class="sol-label amber">✓ Ejercicios basados en negocios reales</span>
       <div class="sol-text">
-        <strong>El Riesgo:</strong>
-        Dependencia total del internet para abrir, editar y guardar archivos.
-        <strong>La Solución en Sheets:</strong>
-        Google Sheets tiene modo offline que sincroniza cambios al reconectar. Aprenderás a activarlo y configurarlo para que nunca pierdas productividad sin señal.
+        <strong class="lbl-amber">// El Riesgo:</strong>
+        Invertir tiempo en ejemplos académicos que no se transfieren a tu contexto real.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        Cada ejercicio de QUERY está diseñado alrededor de casos de negocio: ventas por región, inventario por proveedor, métricas por período. El Kit de plantillas incluye las 12 consultas más usadas en empresas mexicanas, con comentarios en español. Puedes copiar, pegar y ajustar desde el primer día.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
+  <!-- RIESGO 2 -->
   <div class="pain-card" data-cat="riesgo">
     <div class="viewed-check">✓</div>
     <div class="card-top">
-      <div class="card-emoji">⚙️</div>
+      <div class="card-emoji">⏱️</div>
       <div class="card-meta">
         <div class="card-tag tag-riesgo">Riesgo</div>
-        <div class="card-title-t">Mis macros de VBA dejarán de funcionar</div>
+        <div class="card-title-t">No tengo tiempo de ver las sesiones en vivo</div>
       </div>
     </div>
-    <p class="card-quote">"Tengo automatizaciones complejas que no creo que Sheets pueda replicar"</p>
+    <p class="card-quote">"Tengo reuniones, compromisos. No puedo asistir en vivo las tres noches."</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Apps Script + Macros grabadas</span>
+      <span class="sol-label amber">✓ Grabaciones disponibles 100 días</span>
       <div class="sol-text">
-        <strong>El Riesgo:</strong>
-        Perder años de automatización construida en VBA y tener que recrearla.
-        <strong>La Solución en Sheets:</strong>
-        Apps Script (JavaScript) es más potente que VBA para conectarse con APIs, Gmail, Calendar y Drive. El curso incluye un módulo de migración VBA → Apps Script paso a paso.
+        <strong class="lbl-amber">// El Riesgo:</strong>
+        Pagar un curso en vivo y no poder aprovecharlo por agenda ocupada.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        Todas las sesiones quedan grabadas y disponibles por 100 días. Las sesiones son de 1:45 hrs cada una, diseñadas para ver en bloques de 30–45 minutos si lo necesitas. El grupo de WhatsApp incluido te permite hacer preguntas aunque no hayas asistido en vivo.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
+  <!-- RIESGO 3 -->
   <div class="pain-card" data-cat="riesgo">
-    <div class="viewed-check">✓</div>
-    <div class="card-top">
-      <div class="card-emoji">🤝</div>
-      <div class="card-meta">
-        <div class="card-tag tag-riesgo">Riesgo</div>
-        <div class="card-title-t">Mis clientes o socios usan Excel</div>
-      </div>
-    </div>
-    <p class="card-quote">"Si yo cambio pero ellos no, vamos a tener problemas de compatibilidad"</p>
-    <div class="solution-panel">
-      <span class="sol-label">💡 Exportar / Compartir como .xlsx</span>
-      <div class="sol-text">
-        <strong>El Riesgo:</strong>
-        Romper flujos de trabajo con clientes, contadores o proveedores que exigen Excel.
-        <strong>La Solución en Sheets:</strong>
-        Puedes trabajar en Sheets y entregar siempre en .xlsx con un clic. También puedes enlazar archivos para que ellos editen en Excel mientras tú lo ves en tiempo real en Sheets.
-      </div>
-    </div>
-    <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
-      <span class="toggle-arrow">▼</span>
-    </div>
-  </div>
-
-  <div class="pain-card" data-cat="dolor">
-    <div class="viewed-check">✓</div>
-    <div class="card-top">
-      <div class="card-emoji">💥</div>
-      <div class="card-meta">
-        <div class="card-tag tag-dolor">Dolor</div>
-        <div class="card-title-t">Versiones desactualizadas por email</div>
-      </div>
-    </div>
-    <p class="card-quote">"Me pasan un archivo, lo edito, lo mando... y resulta que era la versión equivocada"</p>
-    <div class="solution-panel">
-      <span class="sol-label">💡 Un solo archivo, siempre actual</span>
-      <div class="sol-text">
-        <strong>El Dolor:</strong>
-        El caos de "Reporte_v2_final_ESTE.xlsx" circulando por WhatsApp y correo.
-        <strong>La Solución en Sheets:</strong>
-        Existe una sola URL. Todos ven y editan la misma versión en tiempo real. El historial de cambios registra quién modificó qué y cuándo, con restauración a cualquier versión anterior.
-      </div>
-    </div>
-    <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
-      <span class="toggle-arrow">▼</span>
-    </div>
-  </div>
-
-  <div class="pain-card" data-cat="dolor">
-    <div class="viewed-check">✓</div>
-    <div class="card-top">
-      <div class="card-emoji">💸</div>
-      <div class="card-meta">
-        <div class="card-tag tag-dolor">Dolor</div>
-        <div class="card-title-t">El costo de la licencia de Office</div>
-      </div>
-    </div>
-    <p class="card-quote">"Pago Microsoft 365 cada año y la mitad del tiempo solo uso Excel"</p>
-    <div class="solution-panel">
-      <span class="sol-label">💡 Gratuito para siempre</span>
-      <div class="sol-text">
-        <strong>El Dolor:</strong>
-        Pagar $2,000–$7,000 MXN anuales por una suite que usas parcialmente.
-        <strong>La Solución en Sheets:</strong>
-        Google Sheets es gratuito con cualquier cuenta de Google. El curso cuesta menos que un mes de Microsoft 365 y te libera del costo recurrente de por vida.
-      </div>
-    </div>
-    <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
-      <span class="toggle-arrow">▼</span>
-    </div>
-  </div>
-
-  <div class="pain-card" data-cat="dolor">
-    <div class="viewed-check">✓</div>
-    <div class="card-top">
-      <div class="card-emoji">📱</div>
-      <div class="card-meta">
-        <div class="card-tag tag-dolor">Dolor</div>
-        <div class="card-title-t">No poder trabajar desde el celular</div>
-      </div>
-    </div>
-    <p class="card-quote">"Desde el móvil, Excel es un desastre. Casi no puedo hacer nada útil."</p>
-    <div class="solution-panel">
-      <span class="sol-label">💡 App móvil diseñada para editar</span>
-      <div class="sol-text">
-        <strong>El Dolor:</strong>
-        Necesitar abrir la laptop para revisar o actualizar una cifra urgente.
-        <strong>La Solución en Sheets:</strong>
-        La app de Sheets en Android e iOS está optimizada para móvil. Edita, filtra, valida datos y comparte — todo desde tu teléfono, sin comprometer la estructura del archivo.
-      </div>
-    </div>
-    <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
-      <span class="toggle-arrow">▼</span>
-    </div>
-  </div>
-
-  <div class="pain-card" data-cat="necesidad">
     <div class="viewed-check">✓</div>
     <div class="card-top">
       <div class="card-emoji">🤖</div>
       <div class="card-meta">
-        <div class="card-tag tag-necesidad">Necesidad</div>
-        <div class="card-title-t">Conectar datos con otras apps</div>
+        <div class="card-tag tag-riesgo">Riesgo</div>
+        <div class="card-title-t">La IA en Sheets se ve muy compleja de configurar</div>
       </div>
     </div>
-    <p class="card-quote">"Necesito que mis datos fluyan solos entre formularios, CRM y reportes"</p>
+    <p class="card-quote">"APIs, tokens, JSON… suena a que necesito un equipo de TI."</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Ecosistema Google + Zapier/Make</span>
+      <span class="sol-label amber">✓ Sin configuraciones complejas de infraestructura</span>
       <div class="sol-text">
-        <strong>La Necesidad:</strong>
-        Automatizar la captura de datos desde formularios, WhatsApp Business, e-commerce o cualquier fuente.
-        <strong>La Solución en Sheets:</strong>
-        Sheets se conecta nativamente con Google Forms, Looker Studio, Gmail y Calendar. Además, es el hub favorito de Zapier y Make para automatizar flujos sin código.
+        <strong class="lbl-amber">// El Riesgo:</strong>
+        Pensar que integrar IA requiere servidores, credenciales corporativas o conocimientos de DevOps.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        La Sesión 3 está diseñada específicamente para no-técnicos. Usarás una API key, un script pre-hecho y una plantilla lista. En 45 minutos ya tendrás un pipeline funcional clasificando datos con IA desde tu hoja, sin instalar nada fuera de Google.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
-  <div class="pain-card" data-cat="necesidad">
+  <!-- DOLOR 1 -->
+  <div class="pain-card" data-cat="dolor">
     <div class="viewed-check">✓</div>
     <div class="card-top">
-      <div class="card-emoji">📊</div>
+      <div class="card-emoji">📤</div>
       <div class="card-meta">
-        <div class="card-tag tag-necesidad">Necesidad</div>
-        <div class="card-title-t">Dashboards en tiempo real para clientes</div>
+        <div class="card-tag tag-dolor">Dolor</div>
+        <div class="card-title-t">Sigo enviando reportes a mano cada semana</div>
       </div>
     </div>
-    <p class="card-quote">"Mis clientes quieren ver sus métricas en vivo, no un PDF cada semana"</p>
+    <p class="card-quote">"Todos los lunes paso 2 horas preparando y mandando el mismo reporte de siempre."</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Looker Studio conectado</span>
+      <span class="sol-label cyan">✓ Trigger semanal + GmailApp automatizado</span>
       <div class="sol-text">
-        <strong>La Necesidad:</strong>
-        Entregar reportes profesionales e interactivos sin pagar herramientas costosas de BI.
-        <strong>La Solución en Sheets:</strong>
-        Conecta tu Sheets a Looker Studio (gratuito) y genera dashboards dinámicos con URL pública. Tus clientes ven sus datos actualizados en tiempo real sin que tú intervengas.
+        <strong class="lbl-amber">// El Dolor:</strong>
+        Repetir cada semana la misma rutina de copiar datos, formatear y enviar por correo.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        En la Sesión 2 aprenderás a crear un trigger de tiempo que ejecuta automáticamente un script cada lunes a las 8 AM. El script genera el reporte con los datos actualizados y lo envía por correo a tu lista de destinatarios — sin que tú toques nada. Lo configuras una vez; trabaja para siempre.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
-  <div class="pain-card" data-cat="necesidad">
+  <!-- DOLOR 2 -->
+  <div class="pain-card" data-cat="dolor">
     <div class="viewed-check">✓</div>
     <div class="card-top">
       <div class="card-emoji">🧩</div>
       <div class="card-meta">
-        <div class="card-tag tag-necesidad">Necesidad</div>
-        <div class="card-title-t">Inteligencia Artificial integrada</div>
+        <div class="card-tag tag-dolor">Dolor</div>
+        <div class="card-title-t">Mis datos viven aislados entre Forms, Drive y Gmail</div>
       </div>
     </div>
-    <p class="card-quote">"Quiero usar IA para analizar mis datos, no solo escribir textos"</p>
+    <p class="card-quote">"Tengo respuestas en Forms, archivos en Drive y correos en Gmail. Nada habla con nada."</p>
     <div class="solution-panel">
-      <span class="sol-label">💡 Gemini directamente en Sheets</span>
+      <span class="sol-label cyan">✓ Integración nativa con todo el ecosistema Google</span>
       <div class="sol-text">
-        <strong>La Necesidad:</strong>
-        Aprovechar la IA generativa para analizar ventas, predecir tendencias y detectar anomalías.
-        <strong>La Solución en Sheets:</strong>
-        Gemini está integrado en Sheets: genera fórmulas con lenguaje natural, resume rangos de datos, clasifica respuestas y crea tablas automáticamente. Excel no tiene nada comparable de forma gratuita.
+        <strong class="lbl-amber">// El Dolor:</strong>
+        Pasar tiempo copiando información entre herramientas que deberían conectarse solas.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        Apps Script es el "pegamento" del ecosistema Google. Aprenderás a leer respuestas de Forms, guardarlas en Sheets, cruzarlas con Calendar y responder por Gmail — todo desde un solo script. El patrón lo puedes adaptar a cualquier flujo de datos de tu empresa.
       </div>
     </div>
     <div class="toggle-row">
-      <span class="toggle-hint">Ver solución</span>
+      <span class="toggle-hint">ver solución</span>
       <span class="toggle-arrow">▼</span>
     </div>
   </div>
 
-</div>
+  <!-- DOLOR 3 -->
+  <div class="pain-card" data-cat="dolor">
+    <div class="viewed-check">✓</div>
+    <div class="card-top">
+      <div class="card-emoji">📊</div>
+      <div class="card-meta">
+        <div class="card-tag tag-dolor">Dolor</div>
+        <div class="card-title-t">Mis tablas dinámicas tardan horas en actualizarse</div>
+      </div>
+    </div>
+    <p class="card-quote">"Tengo una tabla dinámica manual que me lleva 2 horas refrescar cada mes."</p>
+    <div class="solution-panel">
+      <span class="sol-label cyan">✓ QUERY con PIVOT: actualización instantánea</span>
+      <div class="sol-text">
+        <strong class="lbl-amber">// El Dolor:</strong>
+        Reconstruir tablas cruzadas manualmente cada vez que cambian los datos.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        La sesión de QUERY con PIVOT te enseña a reemplazar tablas dinámicas manuales con una sola fórmula que se actualiza automáticamente. Cuando llegan nuevos datos a tu hoja fuente, el reporte se actualiza solo en segundos, sin que tú hagas nada.
+      </div>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-hint">ver solución</span>
+      <span class="toggle-arrow">▼</span>
+    </div>
+  </div>
+
+  <!-- NECESIDAD 1 -->
+  <div class="pain-card" data-cat="necesidad">
+    <div class="viewed-check">✓</div>
+    <div class="card-top">
+      <div class="card-emoji">🔗</div>
+      <div class="card-meta">
+        <div class="card-tag tag-necesidad">Necesidad</div>
+        <div class="card-title-t">Mis hojas conectadas con IMPORTRANGE colapsan</div>
+      </div>
+    </div>
+    <p class="card-quote">"Tengo 8 hojas conectadas con IMPORTRANGE y el modelo se rompe cuando crece."</p>
+    <div class="solution-panel">
+      <span class="sol-label green">✓ Arquitectura escalable de hojas</span>
+      <div class="sol-text">
+        <strong class="lbl-amber">// La Necesidad:</strong>
+        Un modelo de datos que no se caiga cuando el volumen o la complejidad aumentan.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        Aprenderás el patrón correcto de arquitectura: una hoja maestra de datos, hojas de reporte separadas y QUERY como capa de consulta. Este modelo escala a miles de registros sin degradar el rendimiento y es la base de todo lo que construirás en el curso.
+      </div>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-hint">ver solución</span>
+      <span class="toggle-arrow">▼</span>
+    </div>
+  </div>
+
+  <!-- NECESIDAD 2 -->
+  <div class="pain-card" data-cat="necesidad">
+    <div class="viewed-check">✓</div>
+    <div class="card-top">
+      <div class="card-emoji">🧬</div>
+      <div class="card-meta">
+        <div class="card-tag tag-necesidad">Necesidad</div>
+        <div class="card-title-t">Quiero analizar texto y encuestas con IA, sin copiar a ChatGPT</div>
+      </div>
+    </div>
+    <p class="card-quote">"Tengo 500 respuestas de encuestas. Las analizo una a una copiando y pegando en ChatGPT."</p>
+    <div class="solution-panel">
+      <span class="sol-label green">✓ Procesamiento en batch desde Apps Script</span>
+      <div class="sol-text">
+        <strong class="lbl-amber">// La Necesidad:</strong>
+        Analizar grandes volúmenes de texto de forma sistemática sin proceso manual.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        En la Sesión 3 construirás un pipeline que toma una columna de texto, llama a un modelo de IA para cada fila y escribe el resultado en la columna contigua — todo en batch. Lo que antes tomaba días en análisis manual, ahora son minutos con un script de 30 líneas que cualquiera puede ejecutar.
+      </div>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-hint">ver solución</span>
+      <span class="toggle-arrow">▼</span>
+    </div>
+  </div>
+
+  <!-- NECESIDAD 3 -->
+  <div class="pain-card" data-cat="necesidad">
+    <div class="viewed-check">✓</div>
+    <div class="card-top">
+      <div class="card-emoji">🏆</div>
+      <div class="card-meta">
+        <div class="card-tag tag-necesidad">Necesidad</div>
+        <div class="card-title-t">Necesito diferenciación real en mi puesto o negocio</div>
+      </div>
+    </div>
+    <p class="card-quote">"Mi equipo y yo hacemos lo mismo con Sheets. Quiero ser el que sabe más."</p>
+    <div class="solution-panel">
+      <span class="sol-label green">✓ Habilidades que el 95% de usuarios de Sheets no tiene</span>
+      <div class="sol-text">
+        <strong class="lbl-amber">// La Necesidad:</strong>
+        Construir una ventaja técnica concreta que se traduzca en resultados visibles para tu jefe o clientes.
+        <strong class="lbl-green">// La Solución en el Curso:</strong>
+        QUERY avanzado, automatizaciones con Apps Script e IA integrada son habilidades que la gran mayoría de usuarios de Sheets nunca llega a dominar. Al terminar el curso tendrás un diploma verificado y — más importante — automatizaciones funcionando en tu trabajo real que demuestran el nivel por sí solas.
+      </div>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-hint">ver solución</span>
+      <span class="toggle-arrow">▼</span>
+    </div>
+  </div>
+
+</div><!-- /cards-grid -->
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Sheets Pro Level — Pedro Medina · Culiacán, Sinaloa, México</p>
+  <p style="margin-top:8px;">
+    <a href="https://wa.me/message/JG7VSAITBDBVO1">
+      <i class="fab fa-whatsapp"></i> WhatsApp
+    </a>
+    &nbsp;·&nbsp; Todos los derechos reservados
+  </p>
+</footer>
 
 <script>
   const cards = document.querySelectorAll('.pain-card');
   const pfill = document.getElementById('pfill');
-  const cnt = document.getElementById('cnt');
+  const cnt   = document.getElementById('cnt');
   const filterBtns = document.querySelectorAll('.filter-btn');
   let viewed = new Set();
 
@@ -604,6 +783,8 @@
         this.classList.add('expanded');
         this.classList.add('viewed');
         viewed.add(this);
+        const visibleCards = [...cards].filter(c => c.style.display !== 'none');
+        const viewedVisible = [...viewed].filter(c => c.style.display !== 'none');
         pfill.style.width = (viewed.size / cards.length * 100) + '%';
         cnt.textContent = viewed.size;
       }
@@ -616,8 +797,7 @@
       this.classList.add('active');
       const f = this.dataset.f;
       cards.forEach(card => {
-        const show = f === 'all' || card.dataset.cat === f;
-        card.style.display = show ? 'block' : 'none';
+        card.style.display = (f === 'all' || card.dataset.cat === f) ? 'block' : 'none';
       });
     });
   });
